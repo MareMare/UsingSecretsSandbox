@@ -15,8 +15,8 @@ public class Fixture
         //    "apikey": "きーTest"
         // }
         this._config = new ConfigurationBuilder()
-            .AddJsonFile("sample.json", optional: true) // for variable-substitution
-            //.AddEnvironmentVariables()                  // for dotnet test env in github actions
+            //.AddJsonFile("sample.json", optional: true) // for variable-substitution
+            .AddEnvironmentVariables()                  // for dotnet test env in github actions
             .AddUserSecrets<UnitTest1>()                // for local
             .Build();
         //this.SetEnvironmentVariablesFromUserSecrets();
