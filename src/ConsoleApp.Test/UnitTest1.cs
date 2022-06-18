@@ -1,36 +1,14 @@
 using Microsoft.Extensions.Configuration;
-using Xunit.Abstractions;
 
 namespace ConsoleApp.Test;
 
-public class UnitTest1
+public class UnitTest1 : IClassFixture<Fixture>
 {
-    private readonly IConfiguration _config;
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly Fixture _fixture;
 
-    public UnitTest1(ITestOutputHelper testOutputHelper)
+    public UnitTest1(Fixture fixture)
     {
-        // e.g.
-        // secrets.json for UnitTest
-        // {
-        //    "username": "ゆーざTest",
-        //    "apikey": "きーTest"
-        // }
-        this._config = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .AddUserSecrets<UnitTest1>(true)
-            .Build();
-        this._testOutputHelper = testOutputHelper;
-        this.SetEnvironmentVariablesFromUserSecrets();
-    }
-
-    private void SetEnvironmentVariablesFromUserSecrets()
-    {
-        foreach (var kvp in this._config.GetChildren())
-        {
-            this._testOutputHelper.WriteLine($"{kvp.Key}={kvp.Value}");
-            Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
-        }
+        this._fixture = fixture;
     }
 
     [Fact]
@@ -48,14 +26,14 @@ public class UnitTest1
     [Fact]
     public void Test_User_from_config()
     {
-        var actual = this._config["username"];
+        var actual = this._fixture.Config["username"];
         Assert.Equal("ゆーざTest", actual);
     }
 
     [Fact]
     public void Test_ApiKey_from_config()
     {
-        var actual = this._config["apikey"];
+        var actual = this._fixture.Config["apikey"];
         Assert.Equal("きーTest", actual);
     }
 
