@@ -44,13 +44,13 @@ jobs:
         env:
           Configuration: ${{ matrix.configuration }}
 
-     - name: 🗄️ Setup sample.json
-       uses: microsoft/variable-substitution@v1 
-       with:
-           files: 'src/ConsoleApp.Test/sample.json'
-       env:
-           username: ゆーざTest
-           apikey: ${{ secrets.SAMPLEAPIKEY }}
+      - name: 🗄️ Setup sample.json
+        uses: microsoft/variable-substitution@v1 
+        with:
+          files: 'src/ConsoleApp.Test/sample.json'
+        env:
+          username: ゆーざTest
+          apikey: ${{ secrets.SAMPLEAPIKEY }}
 
       - name: 🧪 Test
         working-directory: src
