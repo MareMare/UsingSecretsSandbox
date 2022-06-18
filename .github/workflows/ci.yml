@@ -38,12 +38,6 @@ jobs:
         working-directory: src
         run: dotnet restore
 
-      - name: 🛠️ Build
-        working-directory: src
-        run: dotnet build --configuration $env:Configuration --no-restore
-        env:
-          Configuration: ${{ matrix.configuration }}
-
       - name: 🗄️ Setup sample.json
         uses: microsoft/variable-substitution@v1 
         with:
@@ -51,6 +45,12 @@ jobs:
         env:
           username: ゆーざTest
           apikey: ${{ secrets.SAMPLEAPIKEY }}
+
+      - name: 🛠️ Build
+        working-directory: src
+        run: dotnet build --configuration $env:Configuration --no-restore
+        env:
+          Configuration: ${{ matrix.configuration }}
 
       - name: 🧪 Test
         working-directory: src
