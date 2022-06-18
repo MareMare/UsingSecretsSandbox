@@ -18,7 +18,7 @@ public class Fixture
             .AddEnvironmentVariables()
             .AddUserSecrets<UnitTest1>()
             .Build();
-        this.SetEnvironmentVariablesFromUserSecrets();
+        //this.SetEnvironmentVariablesFromUserSecrets();
     }
 
     public IConfiguration Config => this._config;
