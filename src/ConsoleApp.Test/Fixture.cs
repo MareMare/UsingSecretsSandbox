@@ -16,8 +16,8 @@ public class Fixture
         // }
         this._config = new ConfigurationBuilder()
             .AddJsonFile("sample.json", optional: true) // for variable-substitution
-            .AddEnvironmentVariables()                      // for github actions
-            .AddUserSecrets<UnitTest1>()                    // for local
+            //.AddEnvironmentVariables()                  // for dotnet test env in github actions
+            .AddUserSecrets<UnitTest1>()                // for local
             .Build();
         //this.SetEnvironmentVariablesFromUserSecrets();
     }
