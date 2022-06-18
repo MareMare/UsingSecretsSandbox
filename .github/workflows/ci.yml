@@ -38,13 +38,13 @@ jobs:
         working-directory: src
         run: dotnet restore
 
-      - name: 🗄️ Setup sample.json
-        uses: microsoft/variable-substitution@v1 
-        with:
-          files: 'src/ConsoleApp.Test/sample.json'
-        env:
-          username: ゆーざTest
-          apikey: ${{ secrets.SAMPLEAPIKEY }}
+      # - name: 🗄️ Setup sample.json
+      #   uses: microsoft/variable-substitution@v1 
+      #   with:
+      #     files: 'src/ConsoleApp.Test/sample.json'
+      #   env:
+      #     username: ゆーざTest
+      #     apikey: ${{ secrets.SAMPLEAPIKEY }}
 
       - name: 🛠️ Build
         working-directory: src
@@ -56,6 +56,6 @@ jobs:
         working-directory: src
         run: dotnet test --configuration $env:Configuration --no-build --verbosity normal
         env:
-          # username: ゆーざTest
-          # apikey: ${{ secrets.SAMPLEAPIKEY }}
+          username: ゆーざTest
+          apikey: ${{ secrets.SAMPLEAPIKEY }}
           Configuration: ${{ matrix.configuration }}
