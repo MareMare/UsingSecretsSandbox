@@ -4,9 +4,11 @@ namespace ConsoleApp.Test;
 
 public class Fixture
 {
-    private readonly IConfiguration _config;
+    private static readonly Lazy<IConfiguration> LazyConfig = new (Fixture.CreateConfig, true);
 
-    public Fixture()
+    public IConfiguration Config => Fixture.LazyConfig.Value;
+
+    private static IConfiguration CreateConfig()
     {
         // e.g.
         // secrets.json for UnitTest
@@ -14,19 +16,18 @@ public class Fixture
         //    "username": "ゆーざTest",
         //    "apikey": "きーTest"
         // }
-        this._config = new ConfigurationBuilder()
+        var config = new ConfigurationBuilder()
             //.AddJsonFile("sample.json", optional: true) // for variable-substitution
             .AddEnvironmentVariables()                  // for dotnet test env in github actions
             .AddUserSecrets<UnitTest1>()                // for local
             .Build();
-        //this.SetEnvironmentVariablesFromUserSecrets();
+        //SetEnvironmentVariablesFromUserSecrets(config);
+        return config;
     }
 
-    public IConfiguration Config => this._config;
-
-    private void SetEnvironmentVariablesFromUserSecrets()
+    private static void SetEnvironmentVariablesFromUserSecrets(IConfiguration config)
     {
-        foreach (var kvp in this._config.GetChildren())
+        foreach (var kvp in config.GetChildren())
         {
             Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
         }
