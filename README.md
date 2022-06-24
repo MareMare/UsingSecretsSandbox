@@ -1,53 +1,49 @@
 # Secrets をローカルとGitHubで使用する方法
 
+⚠️ **_This repository is intended for me._**
+
 ローカルと GitHub 上の CI の両方でシークレットを扱う方法を考えてみます。
 
-## ソリューションとプロジェクトの準備
+## ソリューションの準備
+
+```ps1
+dotnet new sln
+```
+
+## アプリでのシークレット
+
+アプリでシークレットを利用してみます。
+
+### 1. プロジェクトの準備
 
 ```ps1
 dotnet new console -o ConsoleApp
-dotnet new xunit -o UnitTests
-dotnet new sln
 dotnet sln add ConsoleApp
-dotnet sln add UnitTests
 ```
 
-## シークレットの準備
-
-```ps1
-dotnet user-secrets -p ConsoleApp init
-dotnet user-secrets -p UnitTests init
-```
-
-## アプリ用のシークレット
-
-アプリ用のシークレットを POCO にマッピングする方法でやってみます。
-
-### 1. NuGet パッケージの参照追加
+### 2. NuGet パッケージの参照追加
 
 ```ps1
 dotnet add ConsoleApp package Microsoft.Extensions.Configuration.Binder
 dotnet add ConsoleApp package Microsoft.Extensions.Configuration.UserSecrets
 ```
 
-### 2. シークレットの設定
+### 3. シークレットの準備
+
+```ps1
+dotnet user-secrets -p ConsoleApp init
+```
+
+### 4. シークレットの設定と確認
 
 ```ps1
 dotnet user-secrets -p ConsoleApp set "AppSettings:User" "ゆーざ"
 dotnet user-secrets -p ConsoleApp set "AppSettings:ApiKey" "きー"
+
+dotnet user-secrets -p ConsoleApp list
 ```
 
-### 3. POCO クラスの定義
-
-```cs
-public class AppSettings
-{
-    public string User { get; set; }
-    public string ApiKey { get; set; }
-}
-```
-
-### 4. コードからシークレット取得
+### 5. コードからシークレット取得
 
 ```cs
 using System.Reflection;
@@ -57,38 +53,63 @@ var config = new ConfigurationBuilder()
     .AddUserSecrets(Assembly.GetExecutingAssembly())
     .Build();
 
+// インデクサによる取得
+Console.WriteLine($"indexer: {config["AppSettings:User"]} {config["AppSettings:ApiKey"]}");
+
+// POCO へのマッピングによる取得
 var appSetting = config
     .GetSection(nameof(AppSettings))
     .Get<AppSettings>();
 
-Console.WriteLine($"{appSetting.User} {appSetting.ApiKey}");
+Console.WriteLine($"POCO: {appSetting.User} {appSetting.ApiKey}");
+
+public class AppSettings
+{
+    public string User { get; set; }
+    public string ApiKey { get; set; }
+}
 ```
 
-## Unit Test 用のシークレット(環境変数版)
+## Unit Test でのシークレット(環境変数版)
 
-Unit Test 用のシークレットは GitHub Actions からも指定できるようにするため、
-JSON ではなく KeyValueペアとする方法でやってみます。
+Unit Test でシークレットを利用してみます。
+GitHub Actions からも利用したいので環境変数へアクセスできるようにします。
 
-### 1. NuGet パッケージの参照追加
+### 1. プロジェクトの準備
 
 ```ps1
-dotnet add UnitTests package Microsoft.Extensions.Configuration.EnvironmentVariables
-dotnet add UnitTests package Microsoft.Extensions.Configuration.UserSecrets
+dotnet new xunit -o ConsoleApp.Test
+dotnet sln add ConsoleApp.Test
 ```
 
-### 2. シークレットの設定
+### 2. NuGet パッケージの参照追加
 
 ```ps1
-dotnet user-secrets -p UnitTests set "User" "Testゆーざ"
-dotnet user-secrets -p UnitTests set "ApiKey" "Testきー"
+dotnet add ConsoleApp.Test package Microsoft.Extensions.Configuration.EnvironmentVariables
+dotnet add ConsoleApp.Test package Microsoft.Extensions.Configuration.UserSecrets
 ```
 
-### 3. コードからシークレット取得
+### 3. シークレットの準備
+
+```ps1
+dotnet user-secrets -p ConsoleApp.Test init
+```
+
+### 4. シークレットの設定と確認
+
+```ps1
+dotnet user-secrets -p ConsoleApp.Test set "User" "Testゆーざ"
+dotnet user-secrets -p ConsoleApp.Test set "ApiKey" "Testきー"
+
+dotnet user-secrets -p ConsoleApp.Test list
+```
+
+### 5. コードからシークレット取得
 
 ```cs
 using Microsoft.Extensions.Configuration;
 
-namespace UnitTests;
+namespace ConsoleApp.Test;
 
 public class UnitTest1
 {
@@ -136,6 +157,48 @@ public class UnitTest1
           Configuration: ${{ matrix.configuration }}
 # ...
 ```
+
+## シークレット
+
+User Secrets を格納した `secrets.json` は、あくまでも**開発環境**に限り構成プロバイダが有効になります。
+
+実稼働では**運用環境**となるので環境変数にてシークレットを提供するほうが良いみたいです。
+
+階層キー（`:` 区切り記号）は環境変数では対応していないので `__`（ダブルアンダースコア）を指定する必要があります。
+ちなみに `__` は自動で `:` に置換されるのでコード上の変更は不要です。
+
+* json
+  ```json
+  "Position": {
+    "Title": "Editor",
+    "Name": "Joe Smith"
+  }
+  ```
+* C#
+  ```cs
+  var title = Configuration["Position:Title"];
+  var name = Configuration["Position:Name"];
+  ```
+
+* .NET CLI
+  ```ps1
+  dotnet user-secrets set "Position:Title" "Editor"
+  dotnet user-secrets set "Position:Name" "Joe Smith"
+  ```
+
+* cmd.exe
+  ```bat
+  setx ASPNETCORE_ENVIRONMENT Staging /M
+  setx Position__Title Environment_Editor /M
+  setx Position__Name Environment_Rick /M
+  ```
+
+* pwsh
+  ```ps1
+  [Environment]::SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Staging", "Machine")
+  [Environment]::SetEnvironmentVariable("Position__Title", "Environment_Editor", "Machine")
+  [Environment]::SetEnvironmentVariable("Position__Name", "Environment_Rick", "Machine")
+  ```
 
 ## 参考
 * [Azure 向けの GitHub Actions の variable substitution を使用する \| Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/developer/github/github-variable-substitution)
