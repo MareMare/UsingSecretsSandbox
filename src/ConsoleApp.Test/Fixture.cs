@@ -19,17 +19,8 @@ public class Fixture
         var config = new ConfigurationBuilder()
             //.AddJsonFile("sample.json", optional: true) // for variable-substitution
             .AddEnvironmentVariables()                  // for dotnet test env in github actions
-            .AddUserSecrets<UnitTest1>()                // for local
+            .AddUserSecrets<Fixture>()                  // for local
             .Build();
-        //SetEnvironmentVariablesFromUserSecrets(config);
         return config;
-    }
-
-    private static void SetEnvironmentVariablesFromUserSecrets(IConfiguration config)
-    {
-        foreach (var kvp in config.GetChildren())
-        {
-            Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
-        }
     }
 }

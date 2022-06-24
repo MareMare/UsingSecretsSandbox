@@ -3,18 +3,21 @@
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 
-Console.WriteLine("Hello, World!");
-var builder = new ConfigurationBuilder()
-    .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+var config = new ConfigurationBuilder()
+    .AddUserSecrets(Assembly.GetExecutingAssembly())
+    .Build();
 
-var configuration = builder.Build();
-var appSetting = configuration
+// インデクサによる取得
+Console.WriteLine($"indexer: {config["AppSettings:User"]} {config["AppSettings:ApiKey"]}");
+
+// POCO へのマッピングによる取得
+var appSetting = config
     .GetSection(nameof(AppSettings))
     .Get<AppSettings>();
-Console.WriteLine($"{appSetting.User} {appSetting.ApiKey}");
+Console.WriteLine($"POCO: {appSetting.User} {appSetting.ApiKey}");
 
 public class AppSettings
 {
-    public string User { get; set; }
-    public string ApiKey { get; set; }
+    public string User { get; set; } = null!;
+    public string ApiKey { get; set; } = null!;
 }
