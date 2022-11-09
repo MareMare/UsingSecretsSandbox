@@ -8,7 +8,7 @@ using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostingContext, services) =>
     {
         // POCO へのマッピング
-        var appSetting = hostingContext.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
+        var appSetting = hostingContext.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>() ?? new AppSettings();
         services
             .AddSingleton(appSetting)
             .AddTransient<Hoge>();
