@@ -85,6 +85,7 @@ dotnet sln add ConsoleApp.Test
 ### 2. NuGet パッケージの参照追加
 
 ```ps1
+dotnet add ConsoleApp.Test package Microsoft.Extensions.Configuration.Binder
 dotnet add ConsoleApp.Test package Microsoft.Extensions.Configuration.EnvironmentVariables
 dotnet add ConsoleApp.Test package Microsoft.Extensions.Configuration.UserSecrets
 ```
@@ -158,6 +159,20 @@ public class UnitTest1
 # ...
 ```
 
+## Dependabot secrets
+
+Dependabot には GitHub Secrets にアクセスする権限がないので前述の Workflow に `${{ secrets.SAMPLEAPIKEY }}` で指定したシークレットが取得できずに `dotnet test` が失敗します。
+* [GitHub Actions: Workflows triggered by Dependabot PRs will run with read\-only permissions \| GitHub Changelog](https://github.blog/changelog/2021-02-19-github-actions-workflows-triggered-by-dependabot-prs-will-run-with-read-only-permissions/)
+* [Accessing secrets \- GitHub Docs](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#accessing-secrets)
+
+### 1. Dependabot secrets の準備
+
+![](doc/Dependabot-secrets.png)
+
+Dependabot からシークレットへアクセスするには Dependabot secrets ストアに格納することで `${{secrets.NAME}}` のようにアクセスできるようになります。
+* [Configuring access to private registries for Dependabot \- GitHub Docs](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries-for-dependabot)
+* [About encrypted secrets for Dependabot \- GitHub Docs](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries-for-dependabot#about-encrypted-secrets-for-dependabot)
+
 ## シークレット
 
 User Secrets を格納した `secrets.json` は、あくまでも**開発環境**に限り構成プロバイダが有効になります。
@@ -215,4 +230,7 @@ User Secrets を格納した `secrets.json` は、あくまでも**開発環境*
 
 ## 参考（その３）
 * [How to manage secrets in \.NET locally and on GitHub? \- Maytham Fahmi](https://itbackyard.com/how-to-manage-secrets-in-net-locally-and-on-github/)
-
+* [GitHub Actions: Workflows triggered by Dependabot PRs will run with read\-only permissions \| GitHub Changelog](https://github.blog/changelog/2021-02-19-github-actions-workflows-triggered-by-dependabot-prs-will-run-with-read-only-permissions/)
+* [Accessing secrets \- GitHub Docs](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#accessing-secrets)
+* [Configuring access to private registries for Dependabot \- GitHub Docs](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries-for-dependabot)
+* [About encrypted secrets for Dependabot \- GitHub Docs](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries-for-dependabot#about-encrypted-secrets-for-dependabot)
