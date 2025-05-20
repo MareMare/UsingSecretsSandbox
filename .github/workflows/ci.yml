@@ -7,13 +7,15 @@ on:
     - main
     paths:
     - "src/**"
+    - ".github/workflows/ci.yml"
   pull_request:
     paths:
     - "src/**"
+    - ".github/workflows/ci.yml"
   
 env:
   CONFIGURATION: Release
-  DOTNET_CORE_VERSION: 7.0.x
+  DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: src
   TESTING_DIRECTORY: src
 

@@ -14,7 +14,7 @@ Console.WriteLine($"indexer: {config["AppSettings:User"]} {config["AppSettings:A
 var appSetting = config
     .GetSection(nameof(AppSettings))
     .Get<AppSettings>();
-Console.WriteLine($"POCO: {appSetting.User} {appSetting.ApiKey}");
+Console.WriteLine($"POCO: {appSetting?.User} {appSetting?.ApiKey}");
 
 public class AppSettings
 {
